@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Authenticity Verification System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #16a085;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0 !important;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .card-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .card-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .extracted-text {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--secondary-color);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--success-color);
+            background: #e8f5e9;
+            transform: scale(1.02);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--success-color);
+            background: #e8f5e9;
+            transform: scale(1.05);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--info-color) 100%);
+            border: none;
+            padding: 15px 50px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn-verify:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(39, 174, 96, 0.5);
+        }
+        
+        .btn-verify:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .result-card {
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .result-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .result-real {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid var(--success-color);
+        }
+        
+        .result-fake {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 2px solid var(--danger-color);
+        }
+        
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: iconPop 0.5s ease forwards;
+        }
+        
+        @keyframes iconPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .result-real .result-icon { color: var(--success-color); }
+        .result-fake .result-icon { color: var(--danger-color); }
+        
+        .confidence-bar {
+            height: 30px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .confidence-bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .confidence-bar-fill.animate {
+            width: var(--target-width, 0%);
+        }
+        
+        .feature-list {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+        
+        .spinner {
+            display: none;
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--success-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite, pulse 1.5s ease-in-out infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(39, 174, 96, 0); }
+        }
+        
+        .loading-text {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .extracted-text {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .system-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .system-info i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-certificate me-2"></i>CertVerify</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about"><i class="fas fa-info-circle me-1"></i> About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-certificate me-1"></i> Certificate Verification</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/services"><i class="fas fa-cogs me-1"></i> Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact"><i class="fas fa-envelope me-1"></i> Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary btn-sm px-3 ms-2" href="/admin"><i class="fas fa-user-shield me-1"></i> Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="main-container">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-certificate me-3"></i>Certificate Authenticity Verification</h2>
+                <p>AI-Powered Certificate Analysis System using Tesseract OCR</p>
+            </div>
+            
+            <div class="card-body p-5">
+                <!-- Upload Section -->
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="certificateInput" accept="image/*" style="display: none;">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Drop your certificate here</h4>
+                    <p class="text-muted">or click to browse (PNG, JPG, JPEG, GIF, BMP)</p>
+                </div>
+                
+                <img id="previewImage" class="preview-image" alt="Certificate Preview">
+                
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="spinner"></div>
+                <p id="loadingText" class="loading-text" style="display: none;">Analyzing certificate...</p>
+                
+                <!-- Verify Button -->
+                <div class="text-center mt-4">
+                    <button id="verifyBtn" class="btn btn-verify" disabled>
+                        <i class="fas fa-search me-2"></i>Analyze Certificate
+                    </button>
+                </div>
+                
+                <!-- Results Section -->
+                <div id="resultSection" class="result-card">
+                    <div class="text-center">
+                        <div class="result-icon">
+                            <i id="resultIcon" class="fas"></i>
+                        </div>
+                        <h3 id="resultTitle"></h3>
+                        <p id="resultDescription" class="mb-3"></p>
+                        
+                        <div class="confidence-section">
+                            <p class="mb-2"><strong>Real Percentage:</strong> <span id="realPercentageValue">0</span>%</p>
+                            <div class="confidence-bar">
+                                <div id="realPercentageBar" class="confidence-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <p class="mb-2 mt-2"><strong>Passing Above 40%:</strong> <span id="passingValue">0</span>%</p>
+                        </div>
+                        
+                        <!-- Reasons -->
+                        <div class="mt-4">
+                            <h5><i class="fas fa-list-alt me-2"></i>Reasons</h5>
+                            <ul id="reasonsList" class="list-group"></ul>
+                        </div>
+                        
+                        <!-- Extracted Text -->
+                        <div class="mt-4">
+                            <h5><i class="fas fa-text-height me-2"></i>Extracted Text (Preview)</h5>
+                            <div id="extractedText" class="extracted-text"></div>
+                        </div>
+                        
+                        <!-- Features Analysis -->
+                        <div class="feature-list">
+                            <h5><i class="fas fa-chart-line me-2"></i>Feature Analysis</h5>
+                            <div id="featureList"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Info -->
+                <div class="system-info">
+                    <h5><i class="fas fa-info-circle"></i>System Information</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p><i class="fas fa-brain"></i> <strong>AI Model:</strong> Rule-based ML with feature extraction</p>
+                            <p><i class="fas fa-eye"></i> <strong>OCR Engine:</strong> Tesseract OCR</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><i class="fas fa-check-circle"></i> <strong>Status:</strong> <span id="systemStatus" class="text-success">Checking...</span></p>
+                            <p><i class="fas fa-clock"></i> <strong>Analysis Time:</strong> Real-time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const certificateInput = document.getElementById('certificateInput');
+        const previewImage = document.getElementById('previewImage');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const resultSection = document.getElementById('resultSection');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const loadingText = document.getElementById('loadingText');
+        
+        let selectedFile = null;
+        
+        // Check system health on load
+        fetch('/api/health')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('systemStatus').innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> System Ready</span>';
+            })
+            .catch(err => {
+                document.getElementById('systemStatus').innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> System Error</span>';
+            });
+        
+        // Upload area click handler
+        uploadArea.addEventListener('click', () => {
+            certificateInput.click();
+        });
+        
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        // File input change handler
+        certificateInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            // Enable verify button
+            verifyBtn.disabled = false;
+            
+            // Hide previous results
+            resultSection.style.display = 'none';
+        }
+        
+        // Verify button click handler
+        verifyBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            
+            // Show loading
+            loadingSpinner.style.display = 'block';
+            loadingText.style.display = 'block';
+            verifyBtn.disabled = true;
+            resultSection.style.display = 'none';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('certificate', selectedFile);
+            
+            try {
+                const response = await fetch('/verify', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                // Hide loading
+                loadingSpinner.style.display = 'none';
+                loadingText.style.display = 'none';
+                verifyBtn.disabled = false;
+            }
+        });
+        
+        function displayResults(data) {
+            const prediction = data.prediction;
+            
+            // Set result card class
+            resultSection.className = 'result-card';
+            
+            if (prediction.result === 'REAL') {
+                resultSection.classList.add('result-real');
+                document.getElementById('resultIcon').className = 'fas fa-check-circle';
+                document.getElementById('resultTitle').textContent = '✓ Certificate is REAL';
+                document.getElementById('resultDescription').textContent = 'The certificate has passed our verification checks.';
+            } else {
+                resultSection.classList.add('result-fake');
+                document.getElementById('resultIcon').className = 'fas fa-times-circle';
+                document.getElementById('resultTitle').textContent = '✗ Certificate is FAKE';
+                document.getElementById('resultDescription').textContent = 'This certificate failed our verification.';
+            }
+            
+            // Show result section with animation
+            resultSection.style.display = 'block';
+            setTimeout(() => {
+                resultSection.classList.add('show');
+            }, 10);
+            
+            // Set confidence - show real percentage
+            const realPercentage = Math.round(prediction.real_percentage || 0);
+            
+            document.getElementById('realPercentageValue').textContent = realPercentage;
+            document.getElementById('realPercentageBar').style.setProperty('--target-width', realPercentage + '%');
+            document.getElementById('realPercentageBar').classList.add('animate');
+            document.getElementById('passingValue').textContent = realPercentage;
+            
+            // Color based on result
+            if (prediction.result === 'REAL') {
+                document.getElementById('realPercentageBar').style.background = 'linear-gradient(90deg, #27ae60, #2ecc71)';
+            } else {
+                document.getElementById('realPercentageBar').style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+            }
+            
+            // Display reasons with animation
+            const reasonsList = document.getElementById('reasonsList');
+            reasonsList.innerHTML = '';
+            if (prediction.reasons && prediction.reasons.length > 0) {
+                prediction.reasons.forEach((reason, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.style.animationDelay = (index * 0.1) + 's';
+                    li.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + reason;
+                    reasonsList.appendChild(li);
+                });
+            } else {
+                reasonsList.innerHTML = '<li class="list-group-item">No specific reasons</li>';
+            }
+            
+            // Set extracted text
+            document.getElementById('extractedText').textContent = data.extracted_text || 'No text extracted';
+            
+            // Set features
+            const features = data.features;
+            const featureList = document.getElementById('featureList');
+            featureList.innerHTML = `
+                <div class="feature-item">
+                    <span><i class="fas fa-eye text-primary"></i> Image Sharpness</span>
+                    <span>${features.sharpness}</span>
+                </div>
+                <div class="feature-item">
+                    <span><i class="fas fa-font text-info"></i> Text Density</span>
+                    <span>${features.text_density}</span>
+                </div>
+                <div class="feature-item">
+                    <span><i class="fas fa-key text-warning"></i> Certificate Keywords</span>
+                    <span>${features.keyword_count}</span>
+                </div>
+                <div class="feature-item">
+                    <span><i class="fas fa-signal text-success"></i> Image Entropy</span>
+                    <span>${features.entropy}</span>
+                </div>
+                <div class="feature-item">
+                    <span><i class="fas fa-adjust text-secondary"></i> Contrast</span>
+                    <span>${features.contrast}</span>
+                </div>
+                <div class="feature-item">
+                    <span><i class="fas fa-vector-square text-danger"></i> Suspicious Regions</span>
+                    <span>${features.uniform_regions}</span>
+                </div>
+            `;
+            
+            // Show result
+            resultSection.style.display = 'block';
+            
+            // Scroll to results
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

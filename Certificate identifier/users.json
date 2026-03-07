@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@certverify.com",
+    "role": "administrator",
+    "created_at": "2024-01-01 00:00:00"
+  },
+  {
+    "id": 2,
+    "username": "manager",
+    "password": "manager123",
+    "email": "manager@certverify.com",
+    "role": "manager",
+    "created_at": "2024-01-15 00:00:00"
+  }
+]
