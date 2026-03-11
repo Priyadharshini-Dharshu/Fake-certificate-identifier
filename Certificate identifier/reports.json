@@ -1,0 +1,96 @@
+[
+  {
+    "id": 1,
+    "filename": "1773208821.53426_images_1.jpg",
+    "certificate_name": "images (1)",
+    "upload_date": "2026-03-11 11:30:23",
+    "status": "FAKE",
+    "confidence": 10.0,
+    "real_percentage": 55.0,
+    "passing_percentage": 55.0,
+    "reasons": [
+      "Very few certificate keywords detected",
+      "Insufficient text content for a certificate",
+      "Missing certificate keywords"
+    ],
+    "extracted_text": "a i Gelloga,\n\nE-Certificate\n\n",
+    "features": {
+      "sharpness": 8565.02,
+      "text_density": 0.456,
+      "keyword_count": 1,
+      "entropy": 6.06,
+      "contrast": 82.64,
+      "uniform_regions": 0
+    }
+  },
+  {
+    "id": 2,
+    "filename": "1773208835.583498_certificate.png",
+    "certificate_name": "certificate",
+    "upload_date": "2026-03-11 11:30:36",
+    "status": "REAL",
+    "confidence": 30.0,
+    "real_percentage": 65.0,
+    "passing_percentage": 65.0,
+    "reasons": [
+      "Very few certificate keywords detected",
+      "Missing certificate keywords"
+    ],
+    "extracted_text": "VRRIFGED\n\n@Penn\n\nMay s4 2081\n\nJane Learner\ndha scaly complend\n\nMy First Coursera Course\n\n",
+    "features": {
+      "sharpness": 2210.42,
+      "text_density": 0.3608,
+      "keyword_count": 0,
+      "entropy": 4.37,
+      "contrast": 34.67,
+      "uniform_regions": 4
+    }
+  },
+  {
+    "id": 3,
+    "filename": "1773208929.936554_WhatsApp_Image_2026-03-09_at_10.03.33_PM.jpeg",
+    "certificate_name": "WhatsApp Image 2026-03-09 at 10.03.33 PM",
+    "upload_date": "2026-03-11 11:32:10",
+    "status": "FAKE",
+    "confidence": 20.0,
+    "real_percentage": 60.0,
+    "passing_percentage": 60.0,
+    "reasons": [
+      "Missing certificate keywords",
+      "Low image entropy",
+      "Suspicious uniform regions detected"
+    ],
+    "extracted_text": "mtslata tata atiSatataita catalase tssaratavalatataatlaalatalatatey\n\nCERTIFICATE\n\nThis cereale is, presented ta\n&\n\nPolen Parker\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dignissi...",
+    "features": {
+      "sharpness": 6292.05,
+      "text_density": 0.7094,
+      "keyword_count": 1,
+      "entropy": 3.34,
+      "contrast": 47.76,
+      "uniform_regions": 49
+    }
+  },
+  {
+    "id": 4,
+    "filename": "1773208941.200553_WhatsApp_.jpeg",
+    "certificate_name": "WhatsApp ",
+    "upload_date": "2026-03-11 11:32:23",
+    "status": "REAL",
+    "confidence": 45.0,
+    "real_percentage": 72.5,
+    "passing_percentage": 72.5,
+    "reasons": [
+      "Missing certificate keywords",
+      "Suspicious uniform regions detected"
+    ],
+    "extracted_text": "US TR <fIONAL UNIVER OU\nANC eRe\n\nGazipur, Bangladesh\n\n\u00e9\n\n\u00b0 re)\nraves \u00a2\nSi No.- NUPF 0127916 Roll No. :\nRegn. No.\n4 Session:\n\nPROVISIONAL CERTIFICATE\n\n\u2018Bachelor of Acts\n\nThis is to cory that\n\nand that ...",
+    "features": {
+      "sharpness": 1197.27,
+      "text_density": 0.1913,
+      "keyword_count": 2,
+      "entropy": 5.27,
+      "contrast": 33.4,
+      "uniform_regions": 241
+    }
+  }
+]

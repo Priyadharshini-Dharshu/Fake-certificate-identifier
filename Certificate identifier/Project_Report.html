@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Project Report: Certificate Authenticity Verification System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px auto;
+            padding: 0 20px;
+            max-width: 900px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        h3 {
+            color: #2980b9;
+        }
+        ul, ol {
+            margin-bottom: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        pre, code {
+            background-color: #f8f9fa;
+            border: 1px solid #eaecf0;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-family: Consolas, monospace;
+        }
+        pre {
+            padding: 15px;
+            overflow-x: auto;
+        }
+        strong {
+            color: #2c3e50;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        @media print {
+            body { max-width: none; margin: 0; padding: 20px; }
+            h2 { page-break-after: avoid; }
+        }
+    </style>
+    <!-- Include Mermaid JS -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+
+<h1>Project Report: Certificate Authenticity Verification System</h1>
+
+<h2>1. Project Title</h2>
+<p><strong>Certificate Authenticity Verification System</strong></p>
+
+<h2>2. Project Objective</h2>
+<p>The primary objective of this project is to develop an automated, intelligent web application capable of verifying the authenticity of digital or scanned certificates. By utilizing Computer Vision, Optical Character Recognition (OCR), and a rule-based AI scoring mechanism, the system aims to detect anomalies, text patterns, and image tampering, thereby preventing credential fraud efficiently.</p>
+
+<h2>3. Problem Statement</h2>
+<p>With the rapid digitization of academic and professional credentials, certificate forgery has become increasingly prevalent and sophisticated. Manual verification of certificates is a time-consuming, error-prone, and resource-intensive process, making it impractical for large organizations, universities, and employers. There is a critical need for an automated, reliable, cost-effective, and fast system to detect fake certificates and authenticate genuine ones without relying solely on centralized databases or manual background checks.</p>
+
+<h2>4. Technologies Used</h2>
+<ul>
+    <li><strong>Backend Framework</strong>: Python 3.10+, Flask</li>
+    <li><strong>Frontend Technologies</strong>: HTML5, CSS3, Bootstrap (from templates)</li>
+    <li><strong>Computer Vision & Image Processing</strong>: OpenCV, NumPy</li>
+    <li><strong>Optical Character Recognition (OCR)</strong>: Tesseract OCR, PyTesseract, Pillow (PIL)</li>
+    <li><strong>Machine Learning & Analytics</strong>: Scikit-Learn (dependency), custom rule-based heuristics engine, and weighted feature models</li>
+    <li><strong>Database/Storage</strong>: JSON (local file storage for authentication and verification logs)</li>
+</ul>
+
+<h2>5. System Architecture Explanation</h2>
+<p>The system follows a classic <strong>Client-Server Architecture</strong>.</p>
+<ul>
+    <li><strong>Client Side</strong>: The frontend provides a responsive web interface where users can upload certificate images. It also features an admin dashboard for navigating historical verification reports.</li>
+    <li><strong>Server Side</strong>: The Flask backend handles all core processing and routing. Upon receiving an image upload, it saves the file locally.</li>
+    <li><strong>Processing Pipeline</strong>: The image is sent through an <strong>Image Preprocessing Module</strong> (OpenCV) for contrast enhancement and denoising. It then branches into two parallel paths:
+        <ol>
+            <li><strong>OCR Text Extraction</strong>: Tesseract extracts textual content to check for mandatory certificate keywords.</li>
+            <li><strong>Feature Extraction</strong>: OpenCV computes visual metrics (sharpness, aspect ratio, text density, edge density, entropy, uniformity, and contrast).</li>
+        </ol>
+    </li>
+    <li><strong>AI Prediction Engine</strong>: Both textual and visual features are evaluated by a weighted rule-based model. It calculates an authenticity percentage and makes a definitive classification (REAL or FAKE).</li>
+    <li><strong>Storage</strong>: Verification results and user data are permanently stored in local JSON files (<code>reports.json</code> and <code>users.json</code>).</li>
+</ul>
+
+<hr>
+
+<h2>6. Detailed Module List</h2>
+
+<h3>Web Interface Module (Frontend)</h3>
+<ul>
+    <li><strong>Purpose</strong>: Provides the user interfaces for certificate upload, viewing results, and admin dashboard operations.</li>
+    <li><strong>Files used</strong>: <code>templates/index.html</code>, <code>templates/admin.html</code>, <code>templates/login.html</code>, <code>templates/about.html</code>, <code>templates/services.html</code>, <code>templates/contact.html</code></li>
+    <li><strong>Working explanation</strong>: Built with Bootstrap, these templates render dynamic GUI pages via Flask. They handle file upload via forms, send asynchronous requests, and visualize the verification summary (including confidence bars) directly in the user's browser without full page refreshes.</li>
+</ul>
+
+<h3>Authentication Module</h3>
+<ul>
+    <li><strong>Purpose</strong>: Secures administrative functions and the reporting dashboard.</li>
+    <li><strong>Files used</strong>: <code>app.py</code>, <code>users.json</code></li>
+    <li><strong>Working explanation</strong>: Employs Flask sessions to maintain login states. When an administrator attempts to access routes like <code>/admin</code> or <code>/api/reports</code>, a <code>@login_required</code> decorator validates their session against credentials loaded from <code>users.json</code>.</li>
+</ul>
+
+<h3>Core OCR & Preprocessing Module</h3>
+<ul>
+    <li><strong>Purpose</strong>: Prepares uploaded images and extracts embedded text accurately.</li>
+    <li><strong>Files used</strong>: <code>app.py</code> (<code>extract_text_from_image</code> function)</li>
+    <li><strong>Working explanation</strong>: Utilizes OpenCV to convert images to grayscale, applies CLAHE (Contrast Limited Adaptive Histogram Equalization), uses <code>FastNlMeansDenoising</code>, and applies Otsu's thresholding. Subsequently, PyTesseract runs over the thresholded image to extract machine-readable text.</li>
+</ul>
+
+<h3>Feature Extraction Module</h3>
+<ul>
+    <li><strong>Purpose</strong>: Analyzes visual characteristics and identifies potential digital tampering.</li>
+    <li><strong>Files used</strong>: <code>app.py</code> (<code>analyze_certificate_features</code>, <code>detect_uniform_regions</code>)</li>
+    <li><strong>Working explanation</strong>: Evaluates the image's aspect ratio and sharpness (using Laplacian variance). It computes text density relative to image dimensions, measures information entropy, calculates edge density using the Canny edge detector, and detects uniform regions that strongly indicate copy-paste digital manipulation.</li>
+</ul>
+
+<h3>AI & Prediction Module</h3>
+<ul>
+    <li><strong>Purpose</strong>: Aggregates extracted metrics to determine if a certificate is authentic or fake.</li>
+    <li><strong>Files used</strong>: <code>app.py</code> (<code>predict_authenticity</code>)</li>
+    <li><strong>Working explanation</strong>: Analyzes the extracted text for over 20 mandatory keywords (e.g., "awarded", "signature", "seal"). It uses a sophisticated weighted scoring mechanism—adding points for high sharpness, adequate entropy, and passing keywords; and deducting points for low density, high uniform regions, and missing keywords. A final confidence score and decision are generated.</li>
+</ul>
+
+<h3>Reporting & Storage Module</h3>
+<ul>
+    <li><strong>Purpose</strong>: Logs verification history for administrative auditing.</li>
+    <li><strong>Files used</strong>: <code>app.py</code>, <code>reports.json</code></li>
+    <li><strong>Working explanation</strong>: Serializes each verification attempt (including raw features, statistics, filename, and final verdict) into a JSON object and appends it to <code>reports.json</code>. It exposes API endpoints for the admin panel to retrieve, clear, or selectively delete these reports.</li>
+</ul>
+
+<hr>
+
+<h2>7. Step-by-Step System Workflow</h2>
+<ol>
+    <li><strong>Upload</strong>: A user accesses the homepage and uploads a scanned certificate image.</li>
+    <li><strong>File Validation</strong>: The backend checks for valid extensions (PNG, JPG, PDF-converted, etc.) and file size limits.</li>
+    <li><strong>Local Save</strong>: The file is securely saved to the <code>static/uploads/</code> directory with a timestamp identifier.</li>
+    <li><strong>Preprocessing</strong>: The image is loaded, converted to grayscale, enhanced with CLAHE, denoised, and thresholded.</li>
+    <li><strong>OCR Processing</strong>: Tesseract extracts structural text from the clean image.</li>
+    <li><strong>Feature Extraction</strong>: Visual metrics like image sharpness, aspect ratio, edge density, entropy, contrast, and uniform regions are calculated from the original image.</li>
+    <li><strong>Evaluation (AI Model)</strong>: The system parses the extracted text for specific semantic certificate keywords. It aggregates the keyword count and the visual features through a logical weighted rule-based heuristic.</li>
+    <li><strong>Scoring</strong>: A final unified score is calculated. If the normalized "real percentage" is &gt;= 40%, the certificate is classified as REAL; otherwise, it is FAKE.</li>
+    <li><strong>Logging</strong>: The prediction, calculated metrics, and file attributes are recorded locally in <code>reports.json</code>.</li>
+    <li><strong>Result Display</strong>: A JSON response is sent back to the frontend, which renders the verdict, a confidence bar, and specific reasons for the generated result to the user.</li>
+</ol>
+
+<hr>
+
+<h2 class="page-break">8. Diagrams</h2>
+<p>Below are the architectural, data-flow, and logical structure diagrams mapping out the complete functionality of the application.</p>
+
+<h3>System Architecture Flow</h3>
+<div class="mermaid">
+graph TD
+    Client[Web Browser / User]
+    Web[Flask Application Server]
+    Admin[Admin Dashboard]
+    
+    SubGraph1[File System]
+    Uploads[(static/uploads Directory)]
+    Reports[(reports.json)]
+    Users[(users.json)]
+    
+    SubGraph2[Processing Engine]
+    Pre[Image Pre-Processing]
+    OCR[Tesseract Text Extraction]
+    Feature[Visual Feature Extraction]
+    AI[AI & Prediction Module]
+    
+    Client -- Upload Image --> Web
+    Web -- Save --> Uploads
+    Web -- Read --> Pre
+    Pre --> OCR
+    Pre --> Feature
+    OCR -- Extracted Text --> AI
+    Feature -- Visual Metrics --> AI
+    AI -- Decision/Score --> Web
+    Web -- Log Verification --> Reports
+    Web -- Display Results --> Client
+    
+    Admin -- Authenticate --> Users
+    Admin -- View --> Reports
+</div>
+
+<h3>Data Flow Diagram (Level 0)</h3>
+<div class="mermaid">
+graph LR
+    User([User])
+    Admin([Administrator])
+    System((Certificate Verification System))
+    
+    User -- "Upload Certificate Image" --> System
+    System -- "Authenticity Result & Confidence Score" --> User
+    Admin -- "Login Credentials" --> System
+    System -- "Dashboard/Verification Reports" --> Admin
+</div>
+
+<h3>Data Flow Diagram (Level 1)</h3>
+<div class="mermaid">
+graph TD
+    User([User])
+    Admin([Administrator])
+    
+    Process1((1.0 Upload & Validate))
+    Process2((2.0 Preprocessing & OCR))
+    Process3((3.0 Feature Extraction))
+    Process4((4.0 AI Prediction))
+    Process5((5.0 Report Management))
+    Process6((6.0 Authentication))
+    
+    UploadsDB[(DB: Uploads)]
+    ReportsDB[(DB: Reports JSON)]
+    UsersDB[(DB: Users JSON)]
+    
+    User -- Image --> Process1
+    Process1 -- Valid Image --> UploadsDB
+    UploadsDB -- Load --> Process2
+    UploadsDB -- Load --> Process3
+    
+    Process2 -- Extracted Text --> Process4
+    Process3 -- Visual Metrics --> Process4
+    
+    Process4 -- Decision Score --> Process1
+    Process1 -- Result Output --> User
+    
+    Process4 -- Verification Data --> Process5
+    Process5 -- Write --> ReportsDB
+    
+    Admin -- Credentials --> Process6
+    Process6 -- Validate --> UsersDB
+    Process6 -- Auth Status --> Admin
+    
+    Admin -- Read Request --> Process5
+    ReportsDB -- Read --> Process5
+    Process5 -- Admin Data --> Admin
+</div>
+
+<h3 class="page-break">System Flowchart</h3>
+<div class="mermaid">
+flowchart TD
+    Start([Start]) --> Upload[/User Uploads Certificate Image/]
+    Upload --> Validate{Is File Valid?}
+    Validate -- No --> Error[/Return Error/] --> End([End])
+    Validate -- Yes --> Save[Save File Temporarily]
+    Save --> Preprocess[Grayscale, Enhance & Denoise]
+    Preprocess --> Extract[Tesseract OCR Text]
+    Extract --> Features[Calculate Visual Features]
+    Features --> CheckKeywords{Keywords Present?}
+    CheckKeywords -- No --> MarkFake[Immediate Classify FAKE]
+    CheckKeywords -- Yes --> Scoring[Apply Weighted Heuristic Scoring]
+    Scoring --> ComputeDecision{Score Real % >= 40%?}
+    ComputeDecision -- Yes --> VerdictReal[Mark as REAL]
+    ComputeDecision -- No --> VerdictFake[Mark as FAKE]
+    MarkFake --> SaveLog[Save Results to reports.json]
+    VerdictReal --> SaveLog
+    VerdictFake --> SaveLog
+    SaveLog --> Display[/Display Verification Results/]
+    Display --> End
+</div>
+
+<hr>
+
+<h2 class="page-break">9. Algorithm & Method Used</h2>
+<p>The project employs a <strong>Heuristic Rule-Based Scoring Algorithm</strong> that combines both Optical Character Recognition (OCR) and Computer Vision Features.</p>
+<ul>
+    <li><strong>Textual Semantic Analysis</strong>: Uses NLP paradigms to identify a list of over 20 specific, high-value keywords (e.g., "certificate", "awarded", "diploma", "signature").</li>
+    <li><strong>Computer Vision Analysis</strong>:
+        <ul>
+            <li><em>Sharpness & Clarity</em>: Computes the Variance of Laplacian. A low variance indicates a heavily blurred/unreadable input.</li>
+            <li><em>Tamper Detection</em>: Identifies contiguous uniform areas (where the Standard Deviation of pixel intensity patch is &lt; 5). High frequencies of these patches usually indicate edited, erased, or heavily compressed copy-pasted regions.</li>
+            <li><em>Information Entropy</em>: Calculates Shannon Entropy via histogram probability distributions to measure the true informational complexity of the certificate structure.</li>
+        </ul>
+    </li>
+    <li><strong>Aggregated Decision Modeling</strong>: The system uses a threshold logic system. Starting with a normalized base score, it aggregates positive points for favorable feature values (such as &gt;3 keywords, high sharpness, ample edge density) and subtracts heavy penalties for anomalies (such as low textual content, suspicious uniform regions, or an unnatural aspect ratio).</li>
+</ul>
+
+<h2>10. Verification Logic to Detect Fake Certificates</h2>
+<p>The exact logic flow ensuring authentication relies on strict conditional fallbacks:</p>
+<ol>
+    <li><strong>Critical Keyword Check</strong>: If the image completely lacks certificate-related terminology, it is instantly penalized heavily (-50 points) and classed as <strong>FAKE</strong>.</li>
+    <li><strong>Content Volume Verification</strong>: The system validates if there are sufficient independent text blocks (minimum 5). Fewer blocks result in a penalty for insufficient context.</li>
+    <li><strong>Visual Quality Penalty</strong>: It deducts points actively for poor image sharpness (&lt; 50) and low image entropy (&lt; 4), as faked certificates often rely on low-quality reprints to obscure digital flaws.</li>
+    <li><strong>Copy-Paste Anomaly Mapping</strong>: If the system detects suspicious uniform regions (&gt; 20 occurrences of static standard deviation), it heavily penalizes the score by 15 points, signaling potential structural tampering.</li>
+    <li><strong>Final Metric Calculation</strong>: A normalized percentage is tabulated: <code>((score + 100) / 200) * 100</code>. A passing threshold of <strong>40%</strong> is enforced. Results above this are deemed <code>REAL</code>, and results below are structurally flagged as <code>FAKE</code> alongside detailed trace reasons appended individually (e.g., "Unusual aspect ratio", "Low edge density").</li>
+</ol>
+
+<h2>11. Advantages of the System</h2>
+<ul>
+    <li><strong>Rapid Automation</strong>: Reduces verification checking time from days to mere seconds per document.</li>
+    <li><strong>Multi-modal Cross-Checking</strong>: Defends against fraud by checking both contextual meaning (text) and digital manipulation artifacts (vision attributes).</li>
+    <li><strong>High Usability</strong>: Offers a visually appealing, zero-configuration bootstrap web interface featuring immediate visual feedback and confidence indicators.</li>
+    <li><strong>Administrative Traceability</strong>: Dedicated dashboard reliably keeps historical records of all verifications for auditing purposes.</li>
+    <li><strong>Cost-Effective</strong>: Operates entirely autonomously using local, robust open-source libraries (OpenCV, Tesseract) without relying on expensive paid external APIs.</li>
+</ul>
+
+<h2>12. Limitations</h2>
+<ul>
+    <li><strong>Rule-Based Constraints</strong>: Relies on rigid heuristics, which might inadvertently penalize beautifully designed but highly unconventional real certificates.</li>
+    <li><strong>Resolution Sensitivity</strong>: Tesseract OCR accuracy degrades rapidly on very low-resolution or heavily compressed uploads, leading to potential false negatives.</li>
+    <li><strong>Structural Bias</strong>: The logic strongly expects a traditional diploma structure, lacking the flexibility to evaluate heavily stylized modern digital badges.</li>
+    <li><strong>Exclusively English</strong>: The OCR configuration and hard-coded keyword heuristics limit correct operations strictly to English language certificates.</li>
+    <li><strong>No Cryptographic Backing</strong>: It analyzes surface-level sensory characteristics rather than verifying a digital blockchain hash or cryptographic signature at the issuer source.</li>
+</ul>
+
+<h2>13. Future Enhancements</h2>
+<ul>
+    <li><strong>Deep Learning Transition</strong>: Replace the static rule-based system with a Convolutional Neural Network (CNN) trained on vast datasets of both authentic and counterfeit documents.</li>
+    <li><strong>Barcode & QR Integration</strong>: Add dedicated scanning modules to directly decode embedded visual links.</li>
+    <li><strong>Multilingual OCR Support</strong>: Integrate localized datasets to verify international certificates accurately.</li>
+    <li><strong>Issuer API Connectivity</strong>: Implement direct API verifications into university databases or blockchain ledgers to perform active cross-referencing.</li>
+    <li><strong>Cloud Scalability</strong>: Containerize (Docker) and deploy to a cloud infrastructure (AWS/Azure) to effortlessly manage concurrent high-load processing instances.</li>
+</ul>
+
+</body>
+</html>
